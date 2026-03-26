@@ -1,0 +1,20 @@
+{
+  "name": "@vottun/ai-compliance",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Vottun AI Compliance (EU AI Act Art. 50)",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+
