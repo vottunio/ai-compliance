@@ -128,29 +128,3 @@ VOTTUN_API_BASE_URL=http://localhost:8000/api VOTTUN_API_KEY=YOUR_API_KEY npm ru
 
 Testing `certify_content` / `verify_certificate` / `detect_watermark` is done via any MCP-capable client (Cursor, Claude Desktop, etc.) calling those tool names.
 
-## Sprint 3 checklist (examples + listings)
-
-Planned Sprint 3 tasks from `aicompliance_lunch_plan.md`:
-
-- `T-10` LangChain integration example (Jupyter Notebook)
-- `T-11` CrewAI / AutoGen example (Python script)
-- `T-17` LangGraph example: agent verifies compliance before publishing
-- `T-08` Smithery.ai listing (depends on publishing the npm package)
-- `T-09` mcp.so + Anthropic MCP directory listing (PR to official repo; depends on npm package)
-- `T-D04` AgentHub listing (tool card with description + tiers; depends on `T-08`/`T-09`)
-- `T-D05` Composio named integration (depends on `T-08`/`T-09`)
-- `T-D06` LangChain Hub + LlamaHub submissions (depends on `T-08`/`T-09`)
-- `T-16` Hugging Face Space: interactive demo
-- `T-15` Documentation site (Docusaurus or mkdocs)
-- `T-12` CONTRIBUTING.md, CHANGELOG.md, GitHub Actions CI
-- `T-13` GitHub Discussions + seed questions
-
-Repo-owned Sprint 3 artifacts added in this branch:
-- `examples/langchain_integration.ipynb`
-- `examples/crewai_autogen_example.py`
-- `examples/langgraph_verify_before_publish.py`
-- `docs/sprint3_listing_prep.md` + `docs/listing_tool_card.template.json`
-- `docs-site/` (minimal mkdocs scaffold)
-- `CONTRIBUTING.md`, `CHANGELOG.md`, `.github/workflows/ci.yml`
-- `docs/discussions_seed_questions.md`
-
