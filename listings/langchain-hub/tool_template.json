@@ -1,0 +1,19 @@
+{
+  "toolName": "vottun-ai-compliance",
+  "displayName": "Vottun AI Compliance (Art. 50)",
+  "description": "LangChain tool template backed by the MCP server for Vottun AI Compliance endpoints.",
+  "mcp": {
+    "package": "vottun-ai-compliance-mcp",
+    "toolNames": [
+      "certify_content",
+      "verify_certificate",
+      "detect_watermark",
+      "get_certificate"
+    ]
+  },
+  "quickstart": {
+    "pattern": "certify_content -> verify_certificate (block publish unless verified)",
+    "serverSideWatermark": true
+  }
+}
+

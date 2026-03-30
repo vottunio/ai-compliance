@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Python SDK - install & compile
+        working-directory: sdk-python
+        run: |
+          python -m pip install -U pip
+          python -m pip install -e .
+          python -m compileall src
+
+      - name: TypeScript SDK - install & build
+        working-directory: sdk-typescript
+        run: |
+          npm install
+          npm run build
+
+      - name: MCP server - install & validate deps
+        working-directory: mcp-server
+        run: |
+          npm install
+          node --input-type=module -e "import('zod/v4').then(() => console.log('zod ok')).catch((e) => { console.error(e); process.exit(1); })"
+

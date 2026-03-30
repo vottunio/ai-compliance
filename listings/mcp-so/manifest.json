@@ -1,0 +1,26 @@
+{
+  "name": "vottun-ai-compliance",
+  "description": "MCP wrapper around Vottun AI Compliance backend endpoints (certify/verify/detect/get_certificate).",
+  "mcp": {
+    "package": "vottun-ai-compliance-mcp",
+    "tools": [
+      "certify_content",
+      "verify_certificate",
+      "detect_watermark",
+      "get_certificate"
+    ]
+  },
+  "backend": {
+    "baseUrl": "https://app.aiact50.com/api",
+    "endpoints": [
+      "POST /v1/certify",
+      "POST /v1/batch",
+      "GET /v1/verify/{id_or_hash}",
+      "POST /v1/detect",
+      "GET /v1/certs/{cert_id}"
+    ]
+  },
+  "watermarkNote": "Watermark algorithm runs server-side; SDK/MCP request sets watermark=true (default).",
+  "authNote": "get_certificate and listing endpoints require X-API-Key."
+}
+

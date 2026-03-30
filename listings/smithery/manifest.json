@@ -1,0 +1,33 @@
+{
+  "name": "vottun-ai-compliance",
+  "displayName": "Vottun AI Compliance (EU AI Act Art. 50)",
+  "description": "Open-source toolkit for certifying, watermarking, detecting and verifying AI-generated content. Uses Vottun backend endpoints with server-side watermarking.",
+  "npm": {
+    "package": "@vottun/ai-compliance"
+  },
+  "mcp": {
+    "package": "vottun-ai-compliance-mcp",
+    "serverToolNames": [
+      "certify_content",
+      "verify_certificate",
+      "detect_watermark",
+      "get_certificate"
+    ]
+  },
+  "capabilities": [
+    "Certify content via POST /v1/certify (SDK/MCP sends watermark=true by default for server-side watermarking)",
+    "Verify a certificate via GET /v1/verify/{id_or_hash}",
+    "Detect watermark via POST /v1/detect",
+    "Fetch certificate details via GET /v1/certs/{cert_id} (requires X-API-Key)"
+  ],
+  "auth": {
+    "freeTestnetMode": "No X-API-Key sent",
+    "paidMainnetMode": "Send X-API-Key",
+    "requiresApiKeyForCertificateDetails": true
+  },
+  "repo": {
+    "url": "https://github.com/<your-org>/ai-compliance",
+    "readmeRelativePath": "README.md"
+  }
+}
+

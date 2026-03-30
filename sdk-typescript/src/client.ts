@@ -1,3 +1,7 @@
+// `process.env` is used to pick up the API key in Node environments.
+// We declare `process` to keep the TS build working without adding `@types/node`.
+declare const process: { env: Record<string, string | undefined> } | undefined;
+
 export type VottunCertifyRequest = {
   // Text flow (server computes hashes):
   content?: string;
@@ -31,7 +35,7 @@ export class VottunComplianceClient {
 
   constructor(options?: { baseUrl?: string; apiKey?: string; timeoutMs?: number }) {
     this.baseUrl = options?.baseUrl ?? "https://app.aiact50.com/api";
-    this.apiKey = options?.apiKey ?? process.env.VOTTUN_API_KEY;
+    this.apiKey = options?.apiKey ?? process?.env?.VOTTUN_API_KEY;
     this.timeoutMs = options?.timeoutMs ?? 30_000;
   }
 

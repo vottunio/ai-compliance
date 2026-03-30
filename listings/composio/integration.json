@@ -1,0 +1,25 @@
+{
+  "integrationName": "vottun-ai-compliance",
+  "description": "Compliance tools for EU AI Act Art. 50: certify, verify, detect watermark, and fetch certificates via MCP wrapper.",
+  "mcp": {
+    "serverPackage": "vottun-ai-compliance-mcp",
+    "toolNames": [
+      "certify_content",
+      "verify_certificate",
+      "detect_watermark",
+      "get_certificate"
+    ]
+  },
+  "auth": {
+    "certificateDetailsRequireApiKey": true
+  },
+  "backend": {
+    "baseUrl": "https://app.aiact50.com/api",
+    "authHeader": "X-API-Key"
+  },
+  "notes": [
+    "Ensure the npm package is built/published before Composio registration.",
+    "Watermarking is server-side; request sets watermark=true by default."
+  ]
+}
+

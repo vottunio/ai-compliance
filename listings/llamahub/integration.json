@@ -1,0 +1,16 @@
+{
+  "integrationName": "vottun-ai-compliance",
+  "description": "LlamaIndex integration metadata for Vottun AI Compliance (Art. 50). Provides MCP tool names for certify/verify/detect/get_certificate.",
+  "mcp": {
+    "package": "vottun-ai-compliance-mcp",
+    "toolNames": [
+      "certify_content",
+      "verify_certificate",
+      "detect_watermark",
+      "get_certificate"
+    ]
+  },
+  "workflowHint": "Certify content, then verify certificate (or verify using content hash) before publishing.",
+  "serverSideWatermark": true
+}
+
