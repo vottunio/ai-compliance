@@ -1,0 +1,12 @@
+site_name: Vottun AI Compliance
+site_url: https://example.com
+theme:
+  name: material
+
+nav:
+  - Overview: index.md
+  - SDKs: sdks.md
+  - MCP Server: mcp.md
+  - Examples: examples.md
+  - Listing Prep: listings.md
+

@@ -4,7 +4,7 @@ Open-source toolkit for certifying, watermarking, detecting and verifying AI-gen
 
 This repository includes:
 
-- Smart contract (Solidity + ABI) under `contracts/`
+- Smart contract ABI under `contracts/` (backend uses this)
 - Python SDK under `sdk-python/`
 - TypeScript SDK under `sdk-typescript/`
 - MCP server tools under `mcp-server/`
@@ -40,14 +40,7 @@ pip install vottun-compliance
 
 ```python
 from vottun_compliance import VottunComplianceClient
-
-client = VottunComplianceClient()  # no API key => free testnet mode
-
-res = client.certify_content(
-  content="Hello world",
-  ai_system="gpt-4o"
-)
-print(res)
+print(VottunComplianceClient().certify_content(content="Hello world", ai_system="gpt-4o", watermark=True))
 ```
 
 ### TypeScript
@@ -59,7 +52,8 @@ const client = new VottunComplianceClient(); // free testnet mode
 
 const res = await client.certifyContent({
   content: "Hello world",
-  ai_system: "gpt-4o"
+  ai_system: "gpt-4o",
+  watermark: true // server-side watermarking (default)
 });
 console.log(res);
 ```
@@ -117,4 +111,46 @@ The MCP server exposes tools:
 - `get_certificate`
 
 See `mcp-server/README.md`.
+
+### MCP server run (localhost:8000)
+
+```bash
+cd mcp-server
+npm install
+VOTTUN_API_BASE_URL=http://localhost:8000/api npm run start
+```
+
+Optional: set `VOTTUN_API_KEY` if you want `get_certificate` to work:
+
+```bash
+VOTTUN_API_BASE_URL=http://localhost:8000/api VOTTUN_API_KEY=YOUR_API_KEY npm run start
+```
+
+Testing `certify_content` / `verify_certificate` / `detect_watermark` is done via any MCP-capable client (Cursor, Claude Desktop, etc.) calling those tool names.
+
+## Sprint 3 checklist (examples + listings)
+
+Planned Sprint 3 tasks from `aicompliance_lunch_plan.md`:
+
+- `T-10` LangChain integration example (Jupyter Notebook)
+- `T-11` CrewAI / AutoGen example (Python script)
+- `T-17` LangGraph example: agent verifies compliance before publishing
+- `T-08` Smithery.ai listing (depends on publishing the npm package)
+- `T-09` mcp.so + Anthropic MCP directory listing (PR to official repo; depends on npm package)
+- `T-D04` AgentHub listing (tool card with description + tiers; depends on `T-08`/`T-09`)
+- `T-D05` Composio named integration (depends on `T-08`/`T-09`)
+- `T-D06` LangChain Hub + LlamaHub submissions (depends on `T-08`/`T-09`)
+- `T-16` Hugging Face Space: interactive demo
+- `T-15` Documentation site (Docusaurus or mkdocs)
+- `T-12` CONTRIBUTING.md, CHANGELOG.md, GitHub Actions CI
+- `T-13` GitHub Discussions + seed questions
+
+Repo-owned Sprint 3 artifacts added in this branch:
+- `examples/langchain_integration.ipynb`
+- `examples/crewai_autogen_example.py`
+- `examples/langgraph_verify_before_publish.py`
+- `docs/sprint3_listing_prep.md` + `docs/listing_tool_card.template.json`
+- `docs-site/` (minimal mkdocs scaffold)
+- `CONTRIBUTING.md`, `CHANGELOG.md`, `.github/workflows/ci.yml`
+- `docs/discussions_seed_questions.md`
 
