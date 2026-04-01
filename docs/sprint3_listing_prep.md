@@ -4,7 +4,7 @@ This doc contains the repo-owned steps that you can do inside `ai-compliance/` b
 
 ## 1) Publish the TypeScript SDK package (required by listings)
 
-Most directory listings (Smithery, mcp.so, Anthropic MCP directory, LangChain Hub, LlamaHub, Composio, AgentHub) require a publishable npm package.
+Most directory listings (Smithery, mcp.so, Anthropic MCP directory, LangChain Hub, LlamaHub, Composio, AgentHub, There's An AI For That) require a publishable npm package.
 
 From repo root:
 
@@ -42,6 +42,8 @@ Some directories accept JSON manifests or tool-card metadata.
 This repo includes templates you can adapt:
 - `docs/listing_tool_card.template.json`
 - `listings/` (starter manifests/tool cards for each directory)
+- `listings/anthropic-mcp/pr_template.md` (official MCP directory PR starter text)
+- `listings/theresanaiforthat/listing_copy.md` (submission copy starter)
 
 ## 4) Documentation needed for links
 
