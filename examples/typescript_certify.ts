@@ -1,4 +1,4 @@
-import { VottunComplianceClient } from "@vottun/ai-compliance";
+import { VottunComplianceClient } from "@vottunio/ai-compliance";
 
 async function main() {
   const client = new VottunComplianceClient(); // free testnet mode
