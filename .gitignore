@@ -50,3 +50,4 @@ pnpm-debug.log*
 *.swp
 *.swo
 
+.claude/settings.local.json
