@@ -27,7 +27,7 @@ Free testnet mode is available for quick trials; production usage scales via API
 ## Links
 - Website: `https://aiact50.com`
 - App/API docs: `https://app.aiact50.com/api`
-- GitHub: `https://github.com/<your-org>/ai-compliance`
+- GitHub: `https://github.com/vottunio/ai-compliance`
 
 ## Assets checklist
 - [ ] Logo/icon (1024x1024)

@@ -26,7 +26,7 @@
     "requiresApiKeyForCertificateDetails": true
   },
   "repo": {
-    "url": "https://github.com/<your-org>/ai-compliance",
+    "url": "https://github.com/vottunio/ai-compliance",
     "readmeRelativePath": "README.md"
   }
 }

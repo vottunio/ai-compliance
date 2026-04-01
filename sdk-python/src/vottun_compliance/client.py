@@ -20,15 +20,17 @@ class VottunComplianceClient:
     """
     Client for the Vottun AI Compliance backend.
 
-    Testnet/free mode:
-    - leave `api_key` as None and do not send any X-API-Key header.
+    Auth modes (in priority order):
+    1. api_key set        → SaaS channel (X-API-Key header)
+    2. private_key set    → x402 channel (auto-sign USDC payment on 402 response)
+    3. neither set        → testnet (10 free ops, no auth)
 
-    Mainnet/paid mode:
-    - provide `api_key` and the client will send `X-API-Key`.
+    x402 pay-per-use requires: pip install eth-account
     """
 
     base_url: str = DEFAULT_BASE_URL
     api_key: Optional[str] = None
+    private_key: Optional[str] = None
     timeout: float = 30.0
 
     def __post_init__(self) -> None:
@@ -50,6 +52,106 @@ class VottunComplianceClient:
         if extra:
             headers.update(extra)
         return headers
+
+    def _request_with_x402(
+        self, method: str, url: str, headers: dict[str, str], **kwargs: Any
+    ) -> httpx.Response:
+        """Make a request; if 402 and private_key is set, sign payment and retry."""
+        res = self._client.request(method, url, headers=headers, **kwargs)
+        if res.status_code == 402 and self.private_key and not self.api_key:
+            payment_required = res.headers.get("PAYMENT-REQUIRED")
+            if payment_required:
+                payment_header = self._sign_x402_payment(payment_required)
+                retry_headers = {**headers, "X-PAYMENT": payment_header}
+                res = self._client.request(method, url, headers=retry_headers, **kwargs)
+        return res
+
+    def _sign_x402_payment(self, payment_required_b64: str) -> str:
+        """Sign an x402 payment using ERC-3009 (transferWithAuthorization).
+
+        Requires eth-account: pip install eth-account
+        """
+        import base64
+        import json
+
+        try:
+            from eth_account import Account
+            from eth_account.messages import encode_typed_data
+        except ImportError:
+            raise ImportError(
+                "x402 payment requires eth-account package. Install it: pip install eth-account"
+            )
+
+        requirements = json.loads(base64.b64decode(payment_required_b64).decode("utf-8"))
+
+        # Extract payment details from the 402 response
+        accept = requirements.get("accepts", [{}])[0] if requirements.get("accepts") else requirements
+        pay_to = accept.get("payTo") or accept.get("to", "")
+        amount = accept.get("maxAmountRequired") or accept.get("amount", "0")
+        nonce = accept.get("nonce", "0x" + "0" * 64)
+        valid_after = accept.get("validAfter", "0")
+        valid_before = accept.get("validBefore", str(2**256 - 1))
+        asset = accept.get("asset", "")
+        chain_id = accept.get("chainId") or requirements.get("chainId", 84532)
+        domain_name = accept.get("name", "USDC")
+        domain_version = accept.get("version", "2")
+
+        # Build EIP-712 typed data for transferWithAuthorization (ERC-3009)
+        acct = Account.from_key(self.private_key)
+        typed_data = {
+            "types": {
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "version", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+                "TransferWithAuthorization": [
+                    {"name": "from", "type": "address"},
+                    {"name": "to", "type": "address"},
+                    {"name": "value", "type": "uint256"},
+                    {"name": "validAfter", "type": "uint256"},
+                    {"name": "validBefore", "type": "uint256"},
+                    {"name": "nonce", "type": "bytes32"},
+                ],
+            },
+            "primaryType": "TransferWithAuthorization",
+            "domain": {
+                "name": domain_name,
+                "version": domain_version,
+                "chainId": int(chain_id),
+                "verifyingContract": asset,
+            },
+            "message": {
+                "from": acct.address,
+                "to": pay_to,
+                "value": int(amount),
+                "validAfter": int(valid_after),
+                "validBefore": int(valid_before),
+                "nonce": nonce,
+            },
+        }
+
+        signable = encode_typed_data(full_message=typed_data)
+        signed = acct.sign_message(signable)
+
+        payment_payload = {
+            "x402Version": 2,
+            "scheme": "exact",
+            "network": requirements.get("network", f"eip155:{chain_id}"),
+            "payload": {
+                "signature": signed.signature.hex(),
+                "authorization": {
+                    "from": acct.address,
+                    "to": pay_to,
+                    "value": str(amount),
+                    "validAfter": str(valid_after),
+                    "validBefore": str(valid_before),
+                    "nonce": nonce,
+                },
+            },
+        }
+        return base64.b64encode(json.dumps(payment_payload).encode()).decode()
 
     def certify_content(
         self,
@@ -79,7 +181,7 @@ class VottunComplianceClient:
             }
         )
         url = f"{self.base_url}/v1/certify"
-        res = self._client.post(url, headers=self._headers(), json=payload)
+        res = self._request_with_x402("POST", url, headers=self._headers(), json=payload)
         res.raise_for_status()
         return res.json()
 
@@ -97,7 +199,7 @@ class VottunComplianceClient:
 
         payload = {"items": batch_items}
         url = f"{self.base_url}/v1/batch"
-        res = self._client.post(url, headers=self._headers(), json=payload)
+        res = self._request_with_x402("POST", url, headers=self._headers(), json=payload)
         res.raise_for_status()
         return res.json()
 

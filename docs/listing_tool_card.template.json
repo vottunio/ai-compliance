@@ -33,8 +33,8 @@
     }
   ],
   "env": {
-    "VOTTUN_API_BASE_URL": "optional default https://app.aiact50.com/api",
-    "VOTTUN_API_KEY": "optional; required for get_certificate/listing that needs authenticated endpoints"
+    "AIACT50_API_BASE_URL": "optional default https://app.aiact50.com/api",
+    "AIACT50_API_KEY": "optional; required for get_certificate/listing that needs authenticated endpoints"
   }
 }
 

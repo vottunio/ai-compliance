@@ -17,6 +17,6 @@ npm run start
 
 ## Environment variables
 
-- `VOTTUN_API_BASE_URL` (optional) default: `https://app.aiact50.com/api`
-- `VOTTUN_API_KEY` (optional, but required for `get_certificate`)
+- `AIACT50_API_BASE_URL` (optional) default: `https://app.aiact50.com/api`
+- `AIACT50_API_KEY` (optional, but required for `get_certificate`)
 

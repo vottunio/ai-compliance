@@ -9,15 +9,15 @@ def certify_and_verify_text(text: str) -> str:
     if not text.strip():
         return "Please provide some text."
 
-    base_url = os.getenv("VOTTUN_API_BASE_URL")
-    api_key = os.getenv("VOTTUN_API_KEY")
+    base_url = os.getenv("AIACT50_API_BASE_URL")
+    api_key = os.getenv("AIACT50_API_KEY")
 
     if base_url:
         client = VottunComplianceClient(base_url=base_url, api_key=api_key if api_key else None)
     else:
         client = VottunComplianceClient(api_key=api_key if api_key else None)
 
-    cert = client.certify_content(content=text, ai_system=os.getenv("VOTTUN_AI_SYSTEM", "gpt-4o"), watermark=True)
+    cert = client.certify_content(content=text, ai_system=os.getenv("AIACT50_AI_SYSTEM", "gpt-4o"), watermark=True)
     cert_id = cert.get("cert_id") or cert.get("certificate_id") or ""
     verify = client.verify_certificate(cert_id) if cert_id else None
 

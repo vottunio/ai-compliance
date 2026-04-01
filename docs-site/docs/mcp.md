@@ -12,12 +12,12 @@ The MCP server exposes these tools:
 ```bash
 cd mcp-server
 npm install
-VOTTUN_API_BASE_URL=http://localhost:8000/api npm run start
+AIACT50_API_BASE_URL=http://localhost:8000/api npm run start
 ```
 
 Optional:
 
 ```bash
-VOTTUN_API_BASE_URL=http://localhost:8000/api VOTTUN_API_KEY=YOUR_API_KEY npm run start
+AIACT50_API_BASE_URL=http://localhost:8000/api AIACT50_API_KEY=YOUR_API_KEY npm run start
 ```
 

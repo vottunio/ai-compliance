@@ -20,10 +20,35 @@ The SDKs/MCP server call the backend API endpoints:
 - `GET  https://app.aiact50.com/api/v1/certs/{cert_id}` (requires `X-API-Key`)
 - `GET  https://app.aiact50.com/api/v1/certs` (requires `X-API-Key`)
 
-### Testnet vs Mainnet mode
+### Auth modes
 
-- If you do **not** send `X-API-Key`, requests run in **free testnet mode** (10 ops/IP, Base Sepolia).
-- If you do send `X-API-Key`, requests use **mainnet / paid mode**.
+The SDK supports three auth modes (in priority order):
+
+| Mode | Config | How it works |
+|---|---|---|
+| **SaaS** (API key) | `apiKey` / `AIACT50_API_KEY` | Sends `X-API-Key` header. Mainnet, unlimited per tier. |
+| **x402 pay-per-use** | `privateKey` / `AIACT50_PRIVATE_KEY` | Auto-signs USDC payment on Base L2 when server returns 402. No API key or subscription needed. |
+| **Testnet** (free) | No config | 10 free ops per IP. Base Sepolia. No registration. |
+
+#### x402 pay-per-use (agent-to-agent payments)
+
+For autonomous agents that need to certify content without a subscription:
+
+```python
+# Python — requires: pip install eth-account
+client = VottunComplianceClient(private_key="0xYOUR_WALLET_PRIVATE_KEY")
+result = client.certify_content(content="Hello", ai_system="my-agent")
+# Automatically pays 0.005 USDC per certify on Base Sepolia (testnet)
+```
+
+```typescript
+// TypeScript — requires: npm install @coinbase/x402
+const client = new VottunComplianceClient({ privateKey: "0xYOUR_WALLET_PRIVATE_KEY" });
+const result = await client.certifyContent({ content: "Hello", ai_system: "my-agent" });
+// Automatically pays 0.005 USDC per certify on Base Sepolia (testnet)
+```
+
+The SDK handles the full x402 flow automatically: request → 402 response → sign ERC-3009 payment → retry with payment header → done.
 
 ## Watermark engine note
 
@@ -117,13 +142,17 @@ See `mcp-server/README.md`.
 ```bash
 cd mcp-server
 npm install
-VOTTUN_API_BASE_URL=http://localhost:8000/api npm run start
+AIACT50_API_BASE_URL=http://localhost:8000/api npm run start
 ```
 
-Optional: set `VOTTUN_API_KEY` if you want `get_certificate` to work:
+Optional env vars:
 
 ```bash
-VOTTUN_API_BASE_URL=http://localhost:8000/api VOTTUN_API_KEY=YOUR_API_KEY npm run start
+# SaaS mode (API key):
+AIACT50_API_BASE_URL=http://localhost:8000/api AIACT50_API_KEY=YOUR_API_KEY npm run start
+
+# x402 pay-per-use mode (wallet private key, requires: npm install @coinbase/x402):
+AIACT50_API_BASE_URL=http://localhost:8000/api AIACT50_PRIVATE_KEY=0xYOUR_KEY npm run start
 ```
 
 Testing `certify_content` / `verify_certificate` / `detect_watermark` is done via any MCP-capable client (Cursor, Claude Desktop, etc.) calling those tool names.

@@ -8,8 +8,8 @@ In your Space repo:
 
 1. Copy `app.py` and `requirements.txt`
 2. Set secrets (optional):
-   - `VOTTUN_API_KEY` (for mainnet / paid mode and authenticated certificate lookup)
-   - `VOTTUN_API_BASE_URL` (defaults to `https://app.aiact50.com/api`)
+   - `AIACT50_API_KEY` (for mainnet / paid mode and authenticated certificate lookup)
+   - `AIACT50_API_BASE_URL` (defaults to `https://app.aiact50.com/api`)
 
 Then install dependencies and run:
 

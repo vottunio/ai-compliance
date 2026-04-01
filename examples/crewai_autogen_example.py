@@ -31,7 +31,7 @@ def certify_and_verify(content: str, ai_system: str = "gpt-4o") -> dict[str, Any
 
 def main() -> None:
     content = "This is example AI-generated text that we want to certify."
-    ai_system = os.getenv("VOTTUN_AI_SYSTEM", "gpt-4o")
+    ai_system = os.getenv("AIACT50_AI_SYSTEM", "gpt-4o")
 
     print("Running SDK workflow (certify -> verify)...")
     result = certify_and_verify(content=content, ai_system=ai_system)
