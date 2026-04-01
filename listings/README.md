@@ -1,6 +1,6 @@
 # Listing payload templates (repo-owned)
 
-Directory listings (Smithery, mcp.so / Anthropic MCP, AgentHub, Composio, LangChain Hub, LlamaHub) typically require a combination of:
+Directory listings (Smithery, mcp.so / Anthropic MCP, AgentHub, Composio, LangChain Hub, LlamaHub, There's An AI For That) typically require a combination of:
 
 1. A publishable SDK package (npm publish for TypeScript SDK)
 2. A JSON manifest / tool card describing the MCP tools + capabilities
@@ -16,6 +16,8 @@ This folder contains *starter* payload templates you can upload/paste when creat
 - `composio/integration.json` (template)
 - `langchain-hub/tool_template.json` (template)
 - `llamahub/integration.json` (template)
+- `anthropic-mcp/pr_template.md` (PR text starter for official MCP directory)
+- `theresanaiforthat/listing_copy.md` (submission text starter)
 
 ## How to fill versions (recommended)
 
