@@ -46,7 +46,7 @@ print(VottunComplianceClient().certify_content(content="Hello world", ai_system=
 ### TypeScript
 
 ```ts
-import { VottunComplianceClient } from "@vottun/ai-compliance";
+import { VottunComplianceClient } from "@vottunio/ai-compliance";
 
 const client = new VottunComplianceClient(); // free testnet mode
 

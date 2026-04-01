@@ -1,0 +1,16 @@
+runtime: "typescript"
+startCommand:
+  type: "http"
+  command: "npm --prefix mcp-server run start:http"
+  configSchema:
+    type: "object"
+    properties:
+      apiKey:
+        type: "string"
+        description: "Vottun API key (optional — omit for free testnet mode)"
+    required: []
+  exampleConfig:
+    apiKey: ""
+  env:
+    VOTTUN_API_BASE_URL: "https://app.aiact50.com/api"
+    SMITHERY_API_KEY: "{{config.apiKey}}"
