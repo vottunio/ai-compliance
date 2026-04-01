@@ -3,7 +3,7 @@
   "displayName": "Vottun AI Compliance (EU AI Act Art. 50)",
   "description": "Open-source toolkit for certifying, watermarking, detecting and verifying AI-generated content.",
   "npm": {
-    "package": "@vottun/ai-compliance"
+    "package": "@vottunio/ai-compliance"
   },
   "mcpServer": {
     "package": "vottun-ai-compliance-mcp",

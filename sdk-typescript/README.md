@@ -2,12 +2,12 @@
 
 ## Install
 
-This is a workspace package. In a real publish workflow, you would install `@vottun/ai-compliance`.
+This is a workspace package. In a real publish workflow, you would install `@vottunio/ai-compliance`.
 
 ## Usage (free testnet mode)
 
 ```ts
-import { VottunComplianceClient } from "@vottun/ai-compliance";
+import { VottunComplianceClient } from "@vottunio/ai-compliance";
 
 const client = new VottunComplianceClient();
 
