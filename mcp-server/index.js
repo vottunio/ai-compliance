@@ -1,12 +1,27 @@
 import * as z from "zod/v4";
-import { McpServer } from "@modelcontextprotocol/sdk/server";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
-const apiBaseUrl = process.env.VOTTUN_API_BASE_URL || "https://app.aiact50.com/api";
-const apiKey = process.env.VOTTUN_API_KEY || "";
+const apiBaseUrl = process.env.AIACT50_API_BASE_URL || "https://app.aiact50.com/api";
+const apiKey = process.env.AIACT50_API_KEY || "";
+const privateKey = process.env.AIACT50_PRIVATE_KEY || "";
 
 function authHeaders() {
   return apiKey ? { "X-API-Key": apiKey } : {};
+}
+
+async function signX402Payment(paymentRequiredBase64) {
+  try {
+    const { signPayment } = await import("@coinbase/x402");
+    const requirements = JSON.parse(atob(paymentRequiredBase64));
+    const signed = await signPayment(privateKey, requirements);
+    return typeof signed === "string" ? signed : btoa(JSON.stringify(signed));
+  } catch (e) {
+    if (e?.code === "MODULE_NOT_FOUND" || e?.message?.includes("Cannot find module")) {
+      throw new Error("x402 payment requires @coinbase/x402. Install: npm install @coinbase/x402");
+    }
+    throw new Error(`x402 signing failed: ${e?.message || e}`);
+  }
 }
 
 async function apiRequest({ method, path, jsonBody, query }) {
@@ -26,12 +41,29 @@ async function apiRequest({ method, path, jsonBody, query }) {
     body: jsonBody !== undefined ? JSON.stringify(jsonBody) : undefined
   });
 
+  // x402 flow: if 402 and we have a private key, sign payment and retry
+  if (res.status === 402 && privateKey && !apiKey) {
+    const paymentRequired = res.headers.get("PAYMENT-REQUIRED");
+    if (paymentRequired) {
+      const paymentHeader = await signX402Payment(paymentRequired);
+      const retryRes = await fetch(url.toString(), {
+        method,
+        headers: { "Content-Type": "application/json", "X-PAYMENT": paymentHeader },
+        body: jsonBody !== undefined ? JSON.stringify(jsonBody) : undefined,
+      });
+      const retryText = await retryRes.text();
+      if (!retryRes.ok) {
+        throw new Error(`Vottun API error ${retryRes.status} (x402): ${retryText || retryRes.statusText}`);
+      }
+      try { return retryText ? JSON.parse(retryText) : {}; } catch { return { raw: retryText }; }
+    }
+  }
+
   const text = await res.text();
   if (!res.ok) {
     throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
   }
 
-  // Most endpoints return JSON; for safety, parse best-effort.
   try {
     return text ? JSON.parse(text) : {};
   } catch {
@@ -122,7 +154,7 @@ server.registerTool(
 server.registerTool(
   "get_certificate",
   {
-    description: "Get certificate details by certificate id (via /v1/certs/{cert_id}). Requires VOTTUN_API_KEY (API key only).",
+    description: "Get certificate details by certificate id (via /v1/certs/{cert_id}). Requires AIACT50_API_KEY (API key only).",
     inputSchema: z.object({
       certificate_id: z.string().describe("Certificate id (cert_id) to fetch")
     })
@@ -133,7 +165,7 @@ server.registerTool(
         content: [
           {
             type: "text",
-            text: "Missing VOTTUN_API_KEY. get_certificate requires API key auth (X-API-Key)."
+            text: "Missing AIACT50_API_KEY. get_certificate requires API key auth (X-API-Key)."
           }
         ],
         structuredContent: { error: "missing_api_key" }
@@ -154,5 +186,5 @@ server.registerTool(
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.log("MCP server is running...");
+console.error("MCP server is running...");
 

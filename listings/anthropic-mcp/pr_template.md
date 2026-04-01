@@ -17,7 +17,7 @@ Open-source MCP server for certifying, watermarking, detecting, and verifying AI
 
 ## Package / Repo
 - npm package: `vottun-ai-compliance-mcp`
-- repository: `https://github.com/<your-org>/ai-compliance`
+- repository: `https://github.com/vottunio/ai-compliance`
 
 ## Tools
 - `certify_content`

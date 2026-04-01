@@ -32,10 +32,23 @@ export class VottunComplianceClient {
   private readonly baseUrl: string;
   private readonly apiKey?: string;
   private readonly timeoutMs: number;
+  private readonly privateKey?: string;
 
-  constructor(options?: { baseUrl?: string; apiKey?: string; timeoutMs?: number }) {
+  /**
+   * @param options.baseUrl   — API base URL (default: https://app.aiact50.com/api)
+   * @param options.apiKey    — API key for SaaS/mainnet mode (X-API-Key header)
+   * @param options.privateKey — Wallet private key for x402 pay-per-use mode (USDC on Base)
+   * @param options.timeoutMs — Request timeout in ms (default: 30000)
+   *
+   * Auth modes (in priority order):
+   * 1. apiKey set         → SaaS channel (X-API-Key header)
+   * 2. privateKey set     → x402 channel (auto-sign USDC payment on 402 response)
+   * 3. neither set        → testnet (10 free ops, no auth)
+   */
+  constructor(options?: { baseUrl?: string; apiKey?: string; privateKey?: string; timeoutMs?: number }) {
     this.baseUrl = options?.baseUrl ?? "https://app.aiact50.com/api";
-    this.apiKey = options?.apiKey ?? process?.env?.VOTTUN_API_KEY;
+    this.apiKey = options?.apiKey ?? process?.env?.AIACT50_API_KEY;
+    this.privateKey = options?.privateKey ?? process?.env?.AIACT50_PRIVATE_KEY;
     this.timeoutMs = options?.timeoutMs ?? 30_000;
   }
 
@@ -53,6 +66,28 @@ export class VottunComplianceClient {
         ...init,
         signal: controller.signal
       });
+
+      // x402 flow: if 402 and we have a private key, sign payment and retry
+      if (res.status === 402 && this.privateKey && !this.apiKey) {
+        const paymentRequired = res.headers.get("PAYMENT-REQUIRED");
+        if (paymentRequired) {
+          const paymentHeader = await this.signX402Payment(paymentRequired);
+          const retryRes = await fetch(`${this.baseUrl}${path}`, {
+            ...init,
+            headers: {
+              ...(init?.headers as Record<string, string> ?? {}),
+              "X-PAYMENT": paymentHeader,
+            },
+            signal: controller.signal,
+          });
+          const retryText = await retryRes.text();
+          if (!retryRes.ok) {
+            throw new Error(`Vottun API error ${retryRes.status} (x402 retry): ${retryText || retryRes.statusText}`);
+          }
+          return retryText ? (JSON.parse(retryText) as T) : ({} as T);
+        }
+      }
+
       const text = await res.text();
       if (!res.ok) {
         throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
@@ -60,6 +95,27 @@ export class VottunComplianceClient {
       return text ? (JSON.parse(text) as T) : ({} as T);
     } finally {
       clearTimeout(id);
+    }
+  }
+
+  /**
+   * Sign an x402 payment using ERC-3009 (transferWithAuthorization).
+   * Requires @coinbase/x402 package: npm install @coinbase/x402
+   */
+  private async signX402Payment(paymentRequiredBase64: string): Promise<string> {
+    try {
+      // Dynamic import so x402 is optional — only needed if using pay-per-use
+      const { signPayment } = await import("@coinbase/x402");
+      const requirements = JSON.parse(atob(paymentRequiredBase64));
+      const signed = await signPayment(this.privateKey!, requirements);
+      return typeof signed === "string" ? signed : btoa(JSON.stringify(signed));
+    } catch (e: any) {
+      if (e?.code === "MODULE_NOT_FOUND" || e?.message?.includes("Cannot find module")) {
+        throw new Error(
+          "x402 payment requires @coinbase/x402 package. Install it: npm install @coinbase/x402"
+        );
+      }
+      throw new Error(`x402 payment signing failed: ${e?.message || e}`);
     }
   }
 
