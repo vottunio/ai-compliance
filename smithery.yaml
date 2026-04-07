@@ -8,9 +8,14 @@ startCommand:
       apiKey:
         type: "string"
         description: "Vottun API key (optional — omit for free testnet mode)"
+      privateKey:
+        type: "string"
+        description: "Wallet private key for x402 pay-per-use (USDC on Base). No account needed."
     required: []
   exampleConfig:
     apiKey: ""
+    privateKey: ""
   env:
     AIACT50_API_BASE_URL: "https://app.aiact50.com/api"
-    SMITHERY_API_KEY: "{{config.apiKey}}"
+    AIACT50_API_KEY: "{{config.apiKey}}"
+    AIACT50_PRIVATE_KEY: "{{config.privateKey}}"
