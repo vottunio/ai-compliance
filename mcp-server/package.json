@@ -1,6 +1,6 @@
 {
   "name": "vottun-ai-compliance-mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP server exposing Vottun AI Compliance tools (certify/verify/detect/get_certificate).",
   "license": "MIT",
   "type": "module",
