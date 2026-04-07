@@ -12,5 +12,5 @@ startCommand:
   exampleConfig:
     apiKey: ""
   env:
-    VOTTUN_API_BASE_URL: "https://app.aiact50.com/api"
+    AIACT50_API_BASE_URL: "https://app.aiact50.com/api"
     SMITHERY_API_KEY: "{{config.apiKey}}"
