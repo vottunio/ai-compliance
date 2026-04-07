@@ -23,7 +23,11 @@ def certify_and_verify_text(text: str) -> str:
 
     verified = False
     if isinstance(verify, dict):
-        verified = bool(verify.get("success") or verify.get("verified") or verify.get("valid") or verify.get("is_valid"))
+        verified = bool(
+            verify.get("success") or verify.get("verified") or verify.get("valid")
+            or verify.get("is_valid") or verify.get("on_chain_verified")
+            or verify.get("status") == "valid"
+        )
 
     return f"cert_id: {cert_id}\nverified: {verified}\nverify_response: {verify}"
 

@@ -72,19 +72,25 @@ export class VottunComplianceClient {
         const paymentRequired = res.headers.get("PAYMENT-REQUIRED");
         if (paymentRequired) {
           const paymentHeader = await this.signX402Payment(paymentRequired);
-          const retryRes = await fetch(`${this.baseUrl}${path}`, {
-            ...init,
-            headers: {
-              ...(init?.headers as Record<string, string> ?? {}),
-              "X-PAYMENT": paymentHeader,
-            },
-            signal: controller.signal,
-          });
-          const retryText = await retryRes.text();
-          if (!retryRes.ok) {
-            throw new Error(`Vottun API error ${retryRes.status} (x402 retry): ${retryText || retryRes.statusText}`);
+          const retryController = new AbortController();
+          const retryId = setTimeout(() => retryController.abort(), this.timeoutMs);
+          try {
+            const retryRes = await fetch(`${this.baseUrl}${path}`, {
+              ...init,
+              headers: {
+                ...(init?.headers as Record<string, string> ?? {}),
+                "X-PAYMENT": paymentHeader,
+              },
+              signal: retryController.signal,
+            });
+            const retryText = await retryRes.text();
+            if (!retryRes.ok) {
+              throw new Error(`Vottun API error ${retryRes.status} (x402 retry): ${retryText || retryRes.statusText}`);
+            }
+            return retryText ? (JSON.parse(retryText) as T) : ({} as T);
+          } finally {
+            clearTimeout(retryId);
           }
-          return retryText ? (JSON.parse(retryText) as T) : ({} as T);
         }
       }
 

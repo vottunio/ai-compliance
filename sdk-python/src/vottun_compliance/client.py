@@ -128,7 +128,7 @@ class VottunComplianceClient:
                 "value": int(amount),
                 "validAfter": int(valid_after),
                 "validBefore": int(valid_before),
-                "nonce": nonce,
+                "nonce": bytes.fromhex(nonce.removeprefix("0x")) if isinstance(nonce, str) else nonce,
             },
         }
 

@@ -4,7 +4,14 @@
       "WebSearch",
       "Bash(node:*)",
       "Bash(npm view:*)",
-      "Bash(npm publish:*)"
+      "Bash(npm publish:*)",
+      "Bash(python -c \"import json; json.load\\(open\\('examples/langchain_integration.ipynb'\\)\\)\")",
+      "Bash(sed:*)",
+      "Bash(python -c \"import json; json.load\\(open\\('examples/langchain_integration.ipynb'\\)\\); print\\('OK'\\)\")",
+      "Bash(python -c ':*)",
+      "Bash(python3)",
+      "Bash(python fix_nb.py)",
+      "Bash(rm:*)"
     ]
   }
 }
