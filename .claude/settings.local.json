@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npm view:*)",
+      "Bash(npm publish:*)"
     ]
   }
 }
