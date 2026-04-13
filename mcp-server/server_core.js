@@ -1,5 +1,11 @@
 import * as z from "zod/v4";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const skillMd = readFileSync(join(__dirname, "..", "SKILL.md"), "utf-8");
 
 const apiBaseUrl = process.env.AIACT50_API_BASE_URL || "https://app.aiact50.com/api";
 const apiKey = process.env.AIACT50_API_KEY || process.env.SMITHERY_API_KEY || "";
@@ -76,6 +82,19 @@ export function createMcpServer() {
     version: "0.1.0",
     description: "MCP wrapper for Vottun AI Compliance backend endpoints"
   });
+
+  server.registerResource(
+    "skill",
+    "skill://aiact50/article50-compliance",
+    {
+      title: "AI Act 50 — Article 50 Compliance Skill",
+      description: "Decision tree and policy for autonomous Article 50 compliance. Read this to know WHEN to call certify_content, verify_certificate, and detect_watermark.",
+      mimeType: "text/markdown"
+    },
+    async (uri) => ({
+      contents: [{ uri: uri.href, text: skillMd }]
+    })
+  );
 
   server.registerTool(
     "certify_content",

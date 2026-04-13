@@ -11,7 +11,9 @@
       "Bash(python -c ':*)",
       "Bash(python3)",
       "Bash(python fix_nb.py)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(xargs wc:*)",
+      "mcp__plugin_context7_context7__resolve-library-id"
     ]
   }
 }
