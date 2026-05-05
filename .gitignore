@@ -51,3 +51,5 @@ pnpm-debug.log*
 *.swo
 
 .claude/settings.local.json
+docs/smithery_submission_checklist.md
+docs-site/docs/mcp.md
