@@ -9,7 +9,10 @@ const MCP_PATH = "/mcp";
 const sessionHeader = (value) => (Array.isArray(value) ? value[0] : value);
 
 const transports = {};
-const app = createMcpExpressApp();
+const allowedHosts = process.env.ALLOWED_HOSTS
+  ? process.env.ALLOWED_HOSTS.split(",").map((s) => s.trim()).filter(Boolean)
+  : ["localhost", "127.0.0.1", "[::1]"];
+const app = createMcpExpressApp({ host: "0.0.0.0", allowedHosts });
 
 app.post(MCP_PATH, async (req, res) => {
   try {
