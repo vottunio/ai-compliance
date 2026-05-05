@@ -23,7 +23,8 @@ app.post(MCP_PATH, async (req, res) => {
         sessionIdGenerator: () => randomUUID(),
         onsessioninitialized: (sid) => {
           transports[sid] = transport;
-        }
+        },
+        enableDnsRebindingProtection: false
       });
       transport.onclose = async () => {
         if (transport?.sessionId) delete transports[transport.sessionId];
