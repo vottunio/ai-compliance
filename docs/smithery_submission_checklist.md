@@ -68,3 +68,12 @@ Confirm these values in `listings/smithery/manifest.json`:
 - Installation instructions resolve to published npm packages
 
 If any check fails, fix package/manifest and resubmit.
+
+## 7) Live deployment (2026-05-05)
+
+- Smithery listing: https://smithery.ai/servers/vottunio/aiact50
+- Upstream MCP host: Hugging Face Docker Space — https://huggingface.co/spaces/sergimima/aiact50-mcp
+- Streamable-HTTP endpoint: `https://sergimima-aiact50-mcp.hf.space/mcp`
+- Space hardware: Free tier
+- Space repo source: `hf-space-mcp/` (Dockerfile + README); Dockerfile clones `mcp-server/` from `main` at build time and uses `ADD https://api.github.com/repos/vottunio/ai-compliance/git/refs/heads/main` as cache-bust.
+- `ALLOWED_HOSTS` env in Dockerfile: `sergimima-aiact50-mcp.hf.space,localhost,127.0.0.1` (required by `createMcpExpressApp` host validation).
