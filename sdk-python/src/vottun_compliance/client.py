@@ -241,8 +241,14 @@ class VottunComplianceClient:
         offset: int = 0,
         limit: int = 20,
         content_type: Optional[str] = None,
+        classification: Optional[str] = None,
+        purpose: Optional[str] = None,
+        sector: Optional[str] = None,
+        distribution_channel: Optional[str] = None,
+        language: Optional[str] = None,
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
+        format: Optional[str] = None,
     ) -> dict[str, Any]:
         """
         Authenticated paginated cert listing.
@@ -255,8 +261,14 @@ class VottunComplianceClient:
                 "offset": offset,
                 "limit": limit,
                 "content_type": content_type,
+                "classification": classification,
+                "purpose": purpose,
+                "sector": sector,
+                "distribution_channel": distribution_channel,
+                "language": language,
                 "date_from": date_from,
                 "date_to": date_to,
+                "format": format,
             }
         )
         res = self._client.get(url, headers=self._headers(), params=params)

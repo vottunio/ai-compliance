@@ -23,6 +23,16 @@ export type VottunCertifyRequest = {
   metadata?: Record<string, unknown>;
   watermark?: boolean;
   parent_cert_id?: string;
+  ai_provider?: string;
+  requester_role?: "human" | "autonomous_agent" | "system_pipeline";
+  generation_timestamp?: string;
+  organization?: string;
+  purpose?: "marketing" | "informational" | "legal" | "customer_service" | "editorial" | "research";
+  distribution_channel?: "web" | "social_media" | "email" | "chatbot" | "print" | "broadcast";
+  risk_level?: "low" | "medium" | "high";
+  language?: string;
+  sector?: "pharma" | "banking" | "insurance" | "media" | "legal" | "general";
+  public_interest?: boolean;
 
   // Allow extra keys if backend adds fields:
   [key: string]: unknown;
