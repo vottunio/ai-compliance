@@ -161,6 +161,8 @@ class VottunComplianceClient:
         ai_system: Optional[str] = None,
         model_id: Optional[str] = None,
         watermark: bool = True,
+        deployer: Optional[str] = None,
+        approval_chain: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """
@@ -177,6 +179,8 @@ class VottunComplianceClient:
                 "ai_system": ai_system,
                 "model_id": model_id,
                 "watermark": watermark,
+                "deployer": deployer,
+                "approval_chain": approval_chain,
                 **kwargs,
             }
         )
@@ -241,8 +245,14 @@ class VottunComplianceClient:
         offset: int = 0,
         limit: int = 20,
         content_type: Optional[str] = None,
+        classification: Optional[str] = None,
+        purpose: Optional[str] = None,
+        sector: Optional[str] = None,
+        distribution_channel: Optional[str] = None,
+        language: Optional[str] = None,
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
+        format: Optional[str] = None,
     ) -> dict[str, Any]:
         """
         Authenticated paginated cert listing.
@@ -255,8 +265,14 @@ class VottunComplianceClient:
                 "offset": offset,
                 "limit": limit,
                 "content_type": content_type,
+                "classification": classification,
+                "purpose": purpose,
+                "sector": sector,
+                "distribution_channel": distribution_channel,
+                "language": language,
                 "date_from": date_from,
                 "date_to": date_to,
+                "format": format,
             }
         )
         res = self._client.get(url, headers=self._headers(), params=params)

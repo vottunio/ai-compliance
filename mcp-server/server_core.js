@@ -103,7 +103,43 @@ export function createMcpServer() {
       inputSchema: z
         .object({
           content: z.string().describe("Text content to certify"),
+          content_type: z
+            .enum(["social_post", "article", "image", "video", "audio", "document", "thread", "email"])
+            .optional()
+            .describe("Content category"),
           ai_system: z.string().describe("AI system/model identifier (maps to ai_system in the backend)"),
+          classification: z
+            .enum(["fully_ai_generated", "ai_assisted", "manipulated", "deepfake"])
+            .optional()
+            .describe("EU AI Act classification"),
+          deployer_disclosure_applied: z
+            .boolean()
+            .optional()
+            .describe("Article 50(4) disclosure applied"),
+          parent_cert_id: z.string().optional(),
+          metadata: z.record(z.string(), z.unknown()).optional(),
+          ai_provider: z.string().optional(),
+          requester_role: z.enum(["human", "autonomous_agent", "system_pipeline"]).optional(),
+          generation_timestamp: z.string().optional(),
+          organization: z.string().optional(),
+          purpose: z
+            .enum(["marketing", "informational", "legal", "customer_service", "editorial", "research"])
+            .optional(),
+          distribution_channel: z
+            .enum(["web", "social_media", "email", "chatbot", "print", "broadcast"])
+            .optional(),
+          risk_level: z.enum(["low", "medium", "high"]).optional(),
+          language: z.string().optional(),
+          sector: z.enum(["pharma", "banking", "insurance", "media", "legal", "general"]).optional(),
+          public_interest: z.boolean().optional(),
+          deployer: z
+            .string()
+            .optional()
+            .describe("Entity publishing content publicly (Art. 50(4) liability)"),
+          approval_chain: z
+            .array(z.string())
+            .optional()
+            .describe("Optional internal approval chain (e.g. editor/legal/cmo)"),
           watermark: z.boolean().optional().describe("Request server-side watermarking (default: true)")
         })
         .passthrough()
@@ -123,6 +159,39 @@ export function createMcpServer() {
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
         structuredContent: result
+      };
+    }
+  );
+
+  server.registerTool(
+    "certify_batch",
+    {
+      description: "Certify multiple items in one on-chain transaction (via /v1/batch).",
+      inputSchema: z.object({
+        items: z.array(
+          z.object({
+            content: z.string(),
+            ai_system: z.string(),
+            content_type: z
+              .enum(["social_post", "article", "image", "video", "audio", "document", "thread", "email"])
+              .optional(),
+            classification: z.enum(["fully_ai_generated", "ai_assisted", "manipulated", "deepfake"]).optional(),
+            metadata: z.record(z.string(), z.unknown()).optional(),
+            deployer: z.string().optional(),
+            approval_chain: z.array(z.string()).optional(),
+          }).passthrough()
+        ).min(1).max(100),
+      }),
+    },
+    async ({ items }) => {
+      const result = await apiRequest({
+        method: "POST",
+        path: "/v1/batch",
+        jsonBody: { items },
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        structuredContent: result,
       };
     }
   );
