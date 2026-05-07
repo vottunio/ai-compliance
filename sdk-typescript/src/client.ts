@@ -23,6 +23,18 @@ export type VottunCertifyRequest = {
   metadata?: Record<string, unknown>;
   watermark?: boolean;
   parent_cert_id?: string;
+  ai_provider?: string;
+  requester_role?: "human" | "autonomous_agent" | "system_pipeline";
+  generation_timestamp?: string;
+  organization?: string;
+  purpose?: "marketing" | "informational" | "legal" | "customer_service" | "editorial" | "research";
+  distribution_channel?: "web" | "social_media" | "email" | "chatbot" | "print" | "broadcast";
+  risk_level?: "low" | "medium" | "high";
+  language?: string;
+  sector?: "pharma" | "banking" | "insurance" | "media" | "legal" | "general";
+  public_interest?: boolean;
+  deployer?: string;
+  approval_chain?: string[];
 
   // Allow extra keys if backend adds fields:
   [key: string]: unknown;
@@ -167,16 +179,28 @@ export class VottunComplianceClient {
     offset?: number;
     limit?: number;
     content_type?: string;
+    classification?: string;
+    purpose?: string;
+    sector?: string;
+    distribution_channel?: string;
+    language?: string;
     date_from?: string;
     date_to?: string;
+    format?: "json" | "csv";
   }): Promise<any> {
     if (!this.apiKey) throw new Error("apiKey is required for listCertificates()");
     const params = new URLSearchParams();
     if (options?.offset !== undefined) params.set("offset", String(options.offset));
     if (options?.limit !== undefined) params.set("limit", String(options.limit));
     if (options?.content_type !== undefined) params.set("content_type", options.content_type);
+    if (options?.classification !== undefined) params.set("classification", options.classification);
+    if (options?.purpose !== undefined) params.set("purpose", options.purpose);
+    if (options?.sector !== undefined) params.set("sector", options.sector);
+    if (options?.distribution_channel !== undefined) params.set("distribution_channel", options.distribution_channel);
+    if (options?.language !== undefined) params.set("language", options.language);
     if (options?.date_from !== undefined) params.set("date_from", options.date_from);
     if (options?.date_to !== undefined) params.set("date_to", options.date_to);
+    if (options?.format !== undefined) params.set("format", options.format);
 
     const qs = params.toString();
     return this.request(`/v1/certs${qs ? `?${qs}` : ""}`, {
