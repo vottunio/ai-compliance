@@ -132,6 +132,14 @@ export function createMcpServer() {
           language: z.string().optional(),
           sector: z.enum(["pharma", "banking", "insurance", "media", "legal", "general"]).optional(),
           public_interest: z.boolean().optional(),
+          deployer: z
+            .string()
+            .optional()
+            .describe("Entity publishing content publicly (Art. 50(4) liability)"),
+          approval_chain: z
+            .array(z.string())
+            .optional()
+            .describe("Optional internal approval chain (e.g. editor/legal/cmo)"),
           watermark: z.boolean().optional().describe("Request server-side watermarking (default: true)")
         })
         .passthrough()
@@ -169,6 +177,8 @@ export function createMcpServer() {
               .optional(),
             classification: z.enum(["fully_ai_generated", "ai_assisted", "manipulated", "deepfake"]).optional(),
             metadata: z.record(z.string(), z.unknown()).optional(),
+            deployer: z.string().optional(),
+            approval_chain: z.array(z.string()).optional(),
           }).passthrough()
         ).min(1).max(100),
       }),
