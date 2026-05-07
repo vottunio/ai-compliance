@@ -161,6 +161,8 @@ class VottunComplianceClient:
         ai_system: Optional[str] = None,
         model_id: Optional[str] = None,
         watermark: bool = True,
+        deployer: Optional[str] = None,
+        approval_chain: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """
@@ -177,6 +179,8 @@ class VottunComplianceClient:
                 "ai_system": ai_system,
                 "model_id": model_id,
                 "watermark": watermark,
+                "deployer": deployer,
+                "approval_chain": approval_chain,
                 **kwargs,
             }
         )
