@@ -29,6 +29,45 @@ async function signX402Payment(paymentRequiredBase64) {
   }
 }
 
+const ingredientSchema = z.object({
+  role: z.string().optional(),
+  cert_id: z.string().optional(),
+  content_hash: z.string().optional(),
+  model_id: z.string().optional(),
+  disclosure: z.enum(["full", "hash_only", "nominal", "mixed"]).optional(),
+});
+
+async function apiMultipartRequest({ path, formData }) {
+  const url = `${apiBaseUrl}${path}`;
+  let res = await fetch(url, {
+    method: "POST",
+    headers: { ...authHeaders() },
+    body: formData,
+  });
+
+  if (res.status === 402 && privateKey && !apiKey) {
+    const paymentRequired = res.headers.get("PAYMENT-REQUIRED");
+    if (paymentRequired) {
+      const paymentHeader = await signX402Payment(paymentRequired);
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "X-PAYMENT": paymentHeader },
+        body: formData,
+      });
+    }
+  }
+
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
+  }
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    return { raw: text };
+  }
+}
+
 async function apiRequest({ method, path, jsonBody, query }) {
   const url = new URL(`${apiBaseUrl}${path}`);
   if (query) {
@@ -140,7 +179,15 @@ export function createMcpServer() {
             .array(z.string())
             .optional()
             .describe("Optional internal approval chain (e.g. editor/legal/cmo)"),
-          watermark: z.boolean().optional().describe("Request server-side watermarking (default: true)")
+          watermark: z.boolean().optional().describe("Request server-side watermarking (default: true)"),
+          marking_mode: z.enum(["standard", "proprietary", "hybrid", "auto"]).optional(),
+          anchor_mode: z.enum(["public", "private"]).optional(),
+          configuration: z.enum(["A", "B", "C", "D"]).optional(),
+          disclosure_mode: z.enum(["full", "hash_only", "nominal", "mixed"]).optional(),
+          ingredients: z
+            .array(ingredientSchema)
+            .optional()
+            .describe("Composite certification ingredient declarations (Phase 3)")
         })
         .passthrough()
     },
@@ -220,18 +267,212 @@ export function createMcpServer() {
   server.registerTool(
     "detect_watermark",
     {
-      description: "Detect watermark in text (via /v1/detect). Public (no auth).",
+      description:
+        "Unified detect (Phase 3): text or image via /v1/detect. Returns watermark, C2PA, SynthID, marking_signals.",
+      inputSchema: z
+        .object({
+          content: z.string().optional().describe("Text content to analyze"),
+          image_base64: z
+            .string()
+            .optional()
+            .describe("Base64-encoded PNG/JPEG/WebP bytes (use instead of content for media)"),
+          mime_type: z
+            .enum(["image/png", "image/jpeg", "image/webp"])
+            .optional()
+            .describe("MIME type when image_base64 is set (default image/png)")
+        })
+        .refine((v) => Boolean(v.content) !== Boolean(v.image_base64), {
+          message: "Provide exactly one of content or image_base64"
+        })
+    },
+    async ({ content, image_base64, mime_type }) => {
+      let result;
+      if (content) {
+        result = await apiRequest({
+          method: "POST",
+          path: "/v1/detect",
+          jsonBody: { content }
+        });
+      } else {
+        const bytes = Buffer.from(image_base64, "base64");
+        const form = new FormData();
+        const blob = new Blob([bytes], { type: mime_type || "image/png" });
+        form.append("file", blob, "detect.png");
+        result = await apiMultipartRequest({ path: "/v1/detect", formData: form });
+      }
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        structuredContent: result
+      };
+    }
+  );
+
+  server.registerTool(
+    "wrap_content",
+    {
+      description:
+        "C2PA wrap/sign image without full certify+anchor (POST /v1/wrap). Free testnet: 10 ops/IP; production requires API key (AIACT50_API_KEY) or x402 (AIACT50_PRIVATE_KEY).",
       inputSchema: z.object({
-        content: z.string().describe("Text content to detect watermark in")
+        image_base64: z.string().describe("Base64-encoded PNG/JPEG/WebP image bytes"),
+        mime_type: z
+          .enum(["image/png", "image/jpeg", "image/webp"])
+          .optional()
+          .describe("Image MIME type (default image/png)"),
+        model_id: z.string().optional(),
+        ai_system: z.string().optional(),
+        marking_mode: z.enum(["standard", "proprietary", "hybrid", "auto"]).optional(),
+        cert_id: z.string().optional().describe("Optional cert id to embed in vottun.audit_ref")
       })
     },
-    async ({ content }) => {
+    async ({ image_base64, mime_type, model_id, ai_system, marking_mode, cert_id }) => {
+      const bytes = Buffer.from(image_base64, "base64");
+      const form = new FormData();
+      const blob = new Blob([bytes], { type: mime_type || "image/png" });
+      form.append("file", blob, "wrap.png");
+      if (model_id) form.append("model_id", model_id);
+      if (ai_system) form.append("ai_system", ai_system);
+      if (marking_mode) form.append("marking_mode", marking_mode);
+      if (cert_id) form.append("cert_id", cert_id);
+
+      const result = await apiMultipartRequest({ path: "/v1/wrap", formData: form });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        structuredContent: result
+      };
+    }
+  );
+
+  server.registerTool(
+    "get_composition_record",
+    {
+      description: "Fetch composite ingredient tree for a certified composite (GET /v1/composition/{cert_id}).",
+      inputSchema: z.object({
+        cert_id: z.string().describe("Composite certificate id (vtn_...)")
+      })
+    },
+    async ({ cert_id }) => {
+      const result = await apiRequest({
+        method: "GET",
+        path: `/v1/composition/${encodeURIComponent(cert_id)}`
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        structuredContent: result
+      };
+    }
+  );
+
+  server.registerTool(
+    "get_inclusion_proof",
+    {
+      description: "Export Merkle inclusion proof for a privately anchored certificate (Config B/D). Requires API key.",
+      inputSchema: z.object({
+        cert_id: z.string().describe("Certificate id (vtn_...)")
+      })
+    },
+    async ({ cert_id }) => {
+      if (!apiKey) {
+        return {
+          content: [{ type: "text", text: "Missing AIACT50_API_KEY. get_inclusion_proof requires X-API-Key." }],
+          structuredContent: { error: "missing_api_key" }
+        };
+      }
+      const result = await apiRequest({
+        method: "GET",
+        path: `/v1/audit/inclusion-proof/${encodeURIComponent(cert_id)}`
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        structuredContent: result
+      };
+    }
+  );
+
+  server.registerTool(
+    "get_audit_coverage",
+    {
+      description: "Article 50 coverage matrix: marking / robustness / demonstrability per configuration.",
+      inputSchema: z.object({
+        days: z.number().optional().describe("Lookback days (default 30)")
+      })
+    },
+    async ({ days }) => {
+      if (!apiKey) {
+        return {
+          content: [{ type: "text", text: "Missing AIACT50_API_KEY. get_audit_coverage requires X-API-Key." }],
+          structuredContent: { error: "missing_api_key" }
+        };
+      }
+      const result = await apiRequest({
+        method: "GET",
+        path: "/v1/audit/coverage",
+        query: days !== undefined ? { days } : undefined
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        structuredContent: result
+      };
+    }
+  );
+
+  server.registerTool(
+    "sample_audit",
+    {
+      description: "Reproducible random audit sample with proof references (POST /v1/audit/sampling).",
+      inputSchema: z.object({
+        sample_size: z.number().optional(),
+        seed: z.string().optional(),
+        configuration: z.enum(["A", "B", "C", "D"]).optional()
+      })
+    },
+    async ({ sample_size, seed, configuration }) => {
+      if (!apiKey) {
+        return {
+          content: [{ type: "text", text: "Missing AIACT50_API_KEY. sample_audit requires X-API-Key." }],
+          structuredContent: { error: "missing_api_key" }
+        };
+      }
       const result = await apiRequest({
         method: "POST",
-        path: "/v1/detect",
-        jsonBody: { content }
+        path: "/v1/audit/sampling",
+        jsonBody: {
+          sample_size: sample_size ?? 10,
+          seed: seed ?? "audit-sample",
+          ...(configuration ? { configuration } : {})
+        }
       });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        structuredContent: result
+      };
+    }
+  );
 
+  server.registerTool(
+    "audit_export",
+    {
+      description: "Mode-aware audit export JSON bundle (GET /v1/audit/export?format=json).",
+      inputSchema: z.object({
+        format: z.enum(["json", "csv", "pdf"]).optional(),
+        include_inclusion_proofs: z.boolean().optional()
+      })
+    },
+    async ({ format, include_inclusion_proofs }) => {
+      if (!apiKey) {
+        return {
+          content: [{ type: "text", text: "Missing AIACT50_API_KEY. audit_export requires X-API-Key." }],
+          structuredContent: { error: "missing_api_key" }
+        };
+      }
+      const result = await apiRequest({
+        method: "GET",
+        path: "/v1/audit/export",
+        query: {
+          format: format ?? "json",
+          ...(include_inclusion_proofs ? { include_inclusion_proofs: "true" } : {})
+        }
+      });
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
         structuredContent: result
