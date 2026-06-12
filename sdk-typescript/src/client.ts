@@ -114,16 +114,15 @@ export class VottunComplianceClient {
     return h;
   }
 
-  private async request<T>(path: string, init?: RequestInit): Promise<T> {
+  private async fetchWithOptionalX402Retry(path: string, init: RequestInit): Promise<Response> {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
       const res = await fetch(`${this.baseUrl}${path}`, {
         ...init,
-        signal: controller.signal
+        signal: controller.signal,
       });
 
-      // x402 flow: if 402 and we have a private key, sign payment and retry
       if (res.status === 402 && this.privateKey && !this.apiKey) {
         const paymentRequired = res.headers.get("PAYMENT-REQUIRED");
         if (paymentRequired) {
@@ -131,33 +130,33 @@ export class VottunComplianceClient {
           const retryController = new AbortController();
           const retryId = setTimeout(() => retryController.abort(), this.timeoutMs);
           try {
-            const retryRes = await fetch(`${this.baseUrl}${path}`, {
+            return await fetch(`${this.baseUrl}${path}`, {
               ...init,
               headers: {
-                ...(init?.headers as Record<string, string> ?? {}),
+                ...((init.headers as Record<string, string> | undefined) ?? {}),
                 "X-PAYMENT": paymentHeader,
               },
               signal: retryController.signal,
             });
-            const retryText = await retryRes.text();
-            if (!retryRes.ok) {
-              throw new Error(`Vottun API error ${retryRes.status} (x402 retry): ${retryText || retryRes.statusText}`);
-            }
-            return retryText ? (JSON.parse(retryText) as T) : ({} as T);
           } finally {
             clearTimeout(retryId);
           }
         }
       }
 
-      const text = await res.text();
-      if (!res.ok) {
-        throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
-      }
-      return text ? (JSON.parse(text) as T) : ({} as T);
+      return res;
     } finally {
       clearTimeout(id);
     }
+  }
+
+  private async request<T>(path: string, init?: RequestInit): Promise<T> {
+    const res = await this.fetchWithOptionalX402Retry(path, init ?? {});
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
+    }
+    return text ? (JSON.parse(text) as T) : ({} as T);
   }
 
   /**
@@ -295,12 +294,9 @@ export class VottunComplianceClient {
 
   /**
    * C2PA wrap/sign media without full certify+anchor (POST /v1/wrap).
-   * Requires API key, JWT (via headers), or x402 — same gate as certify.
+   * Same auth modes as certify: testnet (10 ops/IP), API key, or x402.
    */
   async wrapContent(req: VottunWrapRequest): Promise<VottunWrapResponse> {
-    if (!this.apiKey && !this.privateKey) {
-      throw new Error("apiKey or privateKey is required for wrapContent() (auth required since PR security fix)");
-    }
     const form = this._fileForm(req);
     if (req.model_id) form.append("model_id", req.model_id);
     if (req.ai_system) form.append("ai_system", req.ai_system);
@@ -346,23 +342,16 @@ export class VottunComplianceClient {
   }
 
   private async requestMultipart<T>(path: string, form: FormData): Promise<T> {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), this.timeoutMs);
-    try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
-        method: "POST",
-        headers: this.headers(),
-        body: form,
-        signal: controller.signal,
-      });
-      const text = await res.text();
-      if (!res.ok) {
-        throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
-      }
-      return text ? (JSON.parse(text) as T) : ({} as T);
-    } finally {
-      clearTimeout(id);
+    const res = await this.fetchWithOptionalX402Retry(path, {
+      method: "POST",
+      headers: this.headers(),
+      body: form,
+    });
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
     }
+    return text ? (JSON.parse(text) as T) : ({} as T);
   }
 
   async getCertificate(certificateId: string): Promise<any> {
