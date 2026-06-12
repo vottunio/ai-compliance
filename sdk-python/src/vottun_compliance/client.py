@@ -163,6 +163,11 @@ class VottunComplianceClient:
         watermark: bool = True,
         deployer: Optional[str] = None,
         approval_chain: Optional[list[str]] = None,
+        marking_mode: Optional[str] = None,
+        anchor_mode: Optional[str] = None,
+        configuration: Optional[str] = None,
+        disclosure_mode: Optional[str] = None,
+        ingredients: Optional[list[dict[str, Any]]] = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """
@@ -181,6 +186,11 @@ class VottunComplianceClient:
                 "watermark": watermark,
                 "deployer": deployer,
                 "approval_chain": approval_chain,
+                "marking_mode": marking_mode,
+                "anchor_mode": anchor_mode,
+                "configuration": configuration,
+                "disclosure_mode": disclosure_mode,
+                "ingredients": ingredients,
                 **kwargs,
             }
         )
@@ -221,11 +231,163 @@ class VottunComplianceClient:
         return res.json()
 
     def detect_watermark(self, *, content: str) -> dict[str, Any]:
-        """Public watermark detect endpoint (no auth)."""
+        """Detect watermark in text (legacy alias — prefer detect())."""
+        return self.detect(content=content)
+
+    def detect(
+        self,
+        *,
+        content: Optional[str] = None,
+        file_bytes: Optional[bytes] = None,
+        mime_type: str = "image/png",
+        filename: str = "image.png",
+    ) -> dict[str, Any]:
+        """
+        Unified detect (Phase 3): text or image multipart.
+
+        Returns synthid_detected, c2pa_verified, detected_marking_mode, marking_signals, etc.
+        """
         url = f"{self.base_url}/v1/detect"
-        res = self._client.post(url, headers=self._headers(), json={"content": content})
+        if content is not None:
+            res = self._client.post(url, headers=self._headers(), json={"content": content})
+        elif file_bytes is not None:
+            res = self._client.post(
+                url,
+                headers=self._headers(),
+                files={"file": (filename, file_bytes, mime_type)},
+            )
+        else:
+            raise ValueError("detect() requires either content or file_bytes")
         res.raise_for_status()
         return res.json()
+
+    def wrap_content(
+        self,
+        *,
+        file_bytes: bytes,
+        mime_type: str = "image/png",
+        filename: str = "image.png",
+        model_id: Optional[str] = None,
+        ai_system: Optional[str] = None,
+        marking_mode: Optional[str] = None,
+        cert_id: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """C2PA wrap/sign without full certify+anchor (POST /v1/wrap). Requires API key or x402."""
+        if not self.api_key and not self.private_key:
+            raise ValueError("api_key or private_key is required for wrap_content()")
+        url = f"{self.base_url}/v1/wrap"
+        data: dict[str, str] = {}
+        if model_id:
+            data["model_id"] = model_id
+        if ai_system:
+            data["ai_system"] = ai_system
+        if marking_mode:
+            data["marking_mode"] = marking_mode
+        if cert_id:
+            data["cert_id"] = cert_id
+        res = self._request_with_x402(
+            "POST",
+            url,
+            headers=self._headers(),
+            files={"file": (filename, file_bytes, mime_type)},
+            data=data,
+        )
+        res.raise_for_status()
+        return res.json()
+
+    def get_composition_record(self, cert_id: str) -> dict[str, Any]:
+        """Fetch composite ingredient tree (GET /v1/composition/{cert_id}). Public."""
+        url = f"{self.base_url}/v1/composition/{cert_id}"
+        res = self._client.get(url)
+        res.raise_for_status()
+        return res.json()
+
+    def get_inclusion_proof(self, cert_id: str) -> dict[str, Any]:
+        """Merkle inclusion proof for private anchor (GET /v1/audit/inclusion-proof/{cert_id}). Requires API key."""
+        if not self.api_key:
+            raise ValueError("api_key is required for get_inclusion_proof()")
+        url = f"{self.base_url}/v1/audit/inclusion-proof/{cert_id}"
+        res = self._client.get(url, headers=self._headers())
+        res.raise_for_status()
+        return res.json()
+
+    def get_audit_coverage(
+        self,
+        *,
+        days: int = 30,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """Article 50 coverage matrix (GET /v1/audit/coverage). Requires API key."""
+        if not self.api_key:
+            raise ValueError("api_key is required for get_audit_coverage()")
+        params: dict[str, Any] = {"days": days}
+        if date_from:
+            params["date_from"] = date_from
+        if date_to:
+            params["date_to"] = date_to
+        url = f"{self.base_url}/v1/audit/coverage"
+        res = self._client.get(url, headers=self._headers(), params=params)
+        res.raise_for_status()
+        return res.json()
+
+    def sample_audit(
+        self,
+        *,
+        sample_size: int = 10,
+        seed: str = "audit-sample",
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        configuration: Optional[str] = None,
+        anchor_mode: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """Reproducible audit sample (POST /v1/audit/sampling). Requires API key."""
+        if not self.api_key:
+            raise ValueError("api_key is required for sample_audit()")
+        payload: dict[str, Any] = {"sample_size": sample_size, "seed": seed}
+        if date_from:
+            payload["date_from"] = date_from
+        if date_to:
+            payload["date_to"] = date_to
+        if configuration:
+            payload["configuration"] = configuration
+        if anchor_mode:
+            payload["anchor_mode"] = anchor_mode
+        url = f"{self.base_url}/v1/audit/sampling"
+        res = self._client.post(url, headers=self._headers(), json=payload)
+        res.raise_for_status()
+        return res.json()
+
+    def audit_export(
+        self,
+        *,
+        format: str = "json",
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        configuration: Optional[str] = None,
+        anchor_mode: Optional[str] = None,
+        include_inclusion_proofs: bool = False,
+    ) -> Any:
+        """Mode-aware audit export (GET /v1/audit/export). Requires API key."""
+        if not self.api_key:
+            raise ValueError("api_key is required for audit_export()")
+        params: dict[str, Any] = {"format": format}
+        if date_from:
+            params["date_from"] = date_from
+        if date_to:
+            params["date_to"] = date_to
+        if configuration:
+            params["configuration"] = configuration
+        if anchor_mode:
+            params["anchor_mode"] = anchor_mode
+        if include_inclusion_proofs:
+            params["include_inclusion_proofs"] = "true"
+        url = f"{self.base_url}/v1/audit/export"
+        res = self._client.get(url, headers=self._headers(), params=params)
+        res.raise_for_status()
+        if format == "json":
+            return res.json()
+        return res.content
 
     def get_certificate(self, certificate_id: str) -> dict[str, Any]:
         """
