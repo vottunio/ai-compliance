@@ -39,11 +39,24 @@ const ingredientSchema = z.object({
 
 async function apiMultipartRequest({ path, formData }) {
   const url = `${apiBaseUrl}${path}`;
-  const res = await fetch(url, {
+  let res = await fetch(url, {
     method: "POST",
     headers: { ...authHeaders() },
     body: formData,
   });
+
+  if (res.status === 402 && privateKey && !apiKey) {
+    const paymentRequired = res.headers.get("PAYMENT-REQUIRED");
+    if (paymentRequired) {
+      const paymentHeader = await signX402Payment(paymentRequired);
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "X-PAYMENT": paymentHeader },
+        body: formData,
+      });
+    }
+  }
+
   const text = await res.text();
   if (!res.ok) {
     throw new Error(`Vottun API error ${res.status}: ${text || res.statusText}`);
@@ -299,7 +312,7 @@ export function createMcpServer() {
     "wrap_content",
     {
       description:
-        "C2PA wrap/sign image without full certify+anchor (POST /v1/wrap). Public (no auth).",
+        "C2PA wrap/sign image without full certify+anchor (POST /v1/wrap). Free testnet: 10 ops/IP; production requires API key (AIACT50_API_KEY) or x402 (AIACT50_PRIVATE_KEY).",
       inputSchema: z.object({
         image_base64: z.string().describe("Base64-encoded PNG/JPEG/WebP image bytes"),
         mime_type: z

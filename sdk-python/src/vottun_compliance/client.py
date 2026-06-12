@@ -272,9 +272,10 @@ class VottunComplianceClient:
         marking_mode: Optional[str] = None,
         cert_id: Optional[str] = None,
     ) -> dict[str, Any]:
-        """C2PA wrap/sign without full certify+anchor (POST /v1/wrap). Requires API key or x402."""
-        if not self.api_key and not self.private_key:
-            raise ValueError("api_key or private_key is required for wrap_content()")
+        """C2PA wrap/sign without full certify+anchor (POST /v1/wrap).
+
+        Same auth modes as certify_content: testnet (10 ops/IP), API key, or x402.
+        """
         url = f"{self.base_url}/v1/wrap"
         data: dict[str, str] = {}
         if model_id:
@@ -412,6 +413,9 @@ class VottunComplianceClient:
         sector: Optional[str] = None,
         distribution_channel: Optional[str] = None,
         language: Optional[str] = None,
+        configuration: Optional[str] = None,
+        marking_mode: Optional[str] = None,
+        anchor_mode: Optional[str] = None,
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
         format: Optional[str] = None,
@@ -432,6 +436,9 @@ class VottunComplianceClient:
                 "sector": sector,
                 "distribution_channel": distribution_channel,
                 "language": language,
+                "configuration": configuration,
+                "marking_mode": marking_mode,
+                "anchor_mode": anchor_mode,
                 "date_from": date_from,
                 "date_to": date_to,
                 "format": format,

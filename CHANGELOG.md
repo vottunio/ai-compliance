@@ -2,9 +2,14 @@
 
 ## Unreleased
 
-### Changed — PR review security (wrap + Phase 4)
-- **wrap** (`POST /v1/wrap`): now requires same auth as certify (API key / x402 / dev `x-client-id`); testnet IP cap applies
-- **sdk-typescript** / **sdk-python**: `wrapContent` / `wrap_content` require credentials; Phase 4 audit methods (`getAuditCoverage`, `sampleAudit`, `auditExport`, `getInclusionProof`)
+### Changed — PR review (wrap auth + multipart x402 + list filters)
+- **sdk-typescript**: `requestMultipart()` now retries on 402 with x402 signing (same as `request()`); `wrapContent()` allows testnet without credentials (matches `certifyContent`)
+- **sdk-python**: `wrap_content()` allows testnet without credentials; `list_certificates()` gains `configuration` / `marking_mode` / `anchor_mode` filters
+- **mcp-server**: `wrap_content` description documents testnet cap + production auth; multipart requests support x402 retry
+- Removed committed `.DS_Store` (already in `.gitignore`)
+
+### Added — Phase 4 audit (SDK)
+- **sdk-typescript** / **sdk-python**: `getAuditCoverage`, `sampleAudit`, `auditExport`, `getInclusionProof`
 
 ### Added — AI Act 50 Phase 3 (SDK + MCP)
 - **sdk-typescript**: `wrapContent()`, unified `detect()`, `getCompositionRecord()`; Phase 3 types (`marking_mode`, `anchor_mode`, `ingredients`, `VottunDetectResponse`, etc.)
