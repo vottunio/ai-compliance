@@ -2,6 +2,8 @@
 
 Open-source toolkit for certifying, watermarking, detecting and verifying AI-generated content.
 
+> **Developer documentation.** For product configurations **A / B / C / D** (marking × anchor matrix), full request/response payloads, auth channel gating, error catalogue and the `PATCH /v1/tenant-config` field reference, see [`docs-site/docs/configurations.md`](docs-site/docs/configurations.md).
+
 This repository includes:
 
 - Smart contract ABI under `contracts/` (backend uses this)
