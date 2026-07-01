@@ -1,10 +1,11 @@
 site_name: Vottun AI Compliance
-site_url: https://example.com
+site_url: https://app.aiact50.com
 theme:
   name: material
 
 nav:
   - Overview: index.md
+  - Configurations (A/B/C/D): configurations.md
   - SDKs: sdks.md
   - MCP Server: mcp.md
   - Examples: examples.md
