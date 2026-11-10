@@ -81,7 +81,7 @@ export type AnchorProof = BlockchainAnchorProof | MerkleLogAnchorProof;
 
 export type VottunVerifyResponse = {
   cert_id: string;
-  status: "valid" | "not_found" | "invalid";
+  status: "valid" | "not_found" | "invalid" | "unverified";
   content_hash?: string | null;
   anchor_mode?: AnchorMode | null;
   configuration?: ProductConfiguration | null;
@@ -89,7 +89,7 @@ export type VottunVerifyResponse = {
   tx_hash?: string | null;
   on_chain_verified?: boolean;
   anchor_proof?: AnchorProof | null;
-  verification_result?: "valid" | "invalid" | "not_found" | null;
+  verification_result?: "valid" | "invalid" | "not_found" | "unverified" | null;
   [key: string]: unknown;
 };
 
