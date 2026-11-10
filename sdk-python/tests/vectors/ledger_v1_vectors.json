@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "leaves_hex": [
+    "",
+    "00",
+    "10",
+    "2021",
+    "3031",
+    "40414243",
+    "5051525354555657",
+    "606162636465666768696a6b6c6d6e6f"
+  ],
+  "roots": {
+    "0": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "1": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+    "2": "fac54203e7cc696cf0dfcb42c92a1d9dbaf70ad9e621f4bd8d98662f00e3c125",
+    "3": "aeb6bcfe274b70a14fb067a5e5578264db0fa9b51af5e0ba159158f329e06e77",
+    "4": "d37ee418976dd95753c1c73862b9398fa2a2cf9b4ff0fdfe8b30cd95209614b7",
+    "5": "4e3bbb1f7b478dcfe71fb631631519a3bca12c9aefca1612bfce4c13a86264d4",
+    "6": "76e67dadbcdf1e10e1b74ddc608abd2f98dfb16fbce75277b5232a127f2087ef",
+    "7": "ddb89be403809e325750d3d263cd78929c2942b7942a34b77e122c9594a74c8c",
+    "8": "5dc9da79a70659a9ad559cb701ded9a2ab9d823aad2f4960cfe370eff4604328"
+  },
+  "canonical_bytes": [
+    {"input": {"b": 1, "a": 2}, "expected_utf8": "{\"a\":2,\"b\":1}"},
+    {"input": {"z": {"y": [1, true, null, "x"], "a": "ñ"}}, "expected_utf8": "{\"z\":{\"a\":\"ñ\",\"y\":[1,true,null,\"x\"]}}"},
+    {"input": {}, "expected_utf8": "{}"}
+  ],
+  "golden": {
+    "version": 1,
+    "note": "Hand-composed vectors. The seed is RFC 8032 section 7.1 test 1: PUBLIC TEST DATA, never a real key.",
+    "signer": {
+      "seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+      "public_key": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+      "key_id": "21fe31dfa154a261"
+    },
+    "event": {
+      "log_ref": "lg_0123456789abcdef",
+      "row": {
+        "event_id": "11111111-2222-4333-8444-555555555555",
+        "system_slug": "whatsapp-reservas",
+        "session_ref": "ed656d380a77e86e2ff4db0709a0901bc2ade6f85c5e07fcb42eda6a8c48a528",
+        "seq": 3,
+        "prev_hash": "bdf8c108debbc7923cb0d621984b79a2f825571fc3a1c2a5dc97b6182321ad9b",
+        "event_type": "reservation.status_changed",
+        "actor": "whatsapp_nlu",
+        "occurred_at": "2026-10-30T14:00:00.123456+02:00",
+        "mandate_ref": "a817631429af064659e89385cfd10dee423b44b49216bf5431f0b93e28caa6ba",
+        "commitment": "69f437a80040d4d1b4da790a7d5026d1e9ead972716c7ff418a3afc84cdc13d6"
+      },
+      "canonical": "{\"actor\":\"whatsapp_nlu\",\"commitment\":\"69f437a80040d4d1b4da790a7d5026d1e9ead972716c7ff418a3afc84cdc13d6\",\"event_id\":\"11111111-2222-4333-8444-555555555555\",\"event_type\":\"reservation.status_changed\",\"log_ref\":\"lg_0123456789abcdef\",\"mandate_ref\":\"a817631429af064659e89385cfd10dee423b44b49216bf5431f0b93e28caa6ba\",\"occurred_at\":\"2026-10-30T12:00:00.123Z\",\"prev_hash\":\"bdf8c108debbc7923cb0d621984b79a2f825571fc3a1c2a5dc97b6182321ad9b\",\"seq\":3,\"session_ref\":\"ed656d380a77e86e2ff4db0709a0901bc2ade6f85c5e07fcb42eda6a8c48a528\",\"system_slug\":\"whatsapp-reservas\",\"v\":1}",
+      "leaf_hash": "77bfa260fff78440e0428ed5e160f3810826079cdd7b90d4ba388893b633511e",
+      "signature": "4a091b112a940cccbbaf46c4f5aeffd6c641ded6ba35b18f0392d92915df9db98f1d18895a409135cb213d087b0ce23b740be9da2a5f84500f405fa1fff56c0e"
+    },
+    "checkpoint": {
+      "log_ref": "lg_0123456789abcdef",
+      "row": {
+        "tree_size": 4,
+        "root_hash": "7e43b4d22a268ccba8b129401305db1c84a16e3ed6b1986afd82228187f0a91e",
+        "previous_root_hash": "ba1740607881c112bef666a9801a869e6c6d62e70ce8a2427f1cf27ac9a302c8",
+        "signed_at": "2026-10-30T12:10:00.456789+00:00"
+      },
+      "canonical": "{\"log_ref\":\"lg_0123456789abcdef\",\"previous_root_hash\":\"ba1740607881c112bef666a9801a869e6c6d62e70ce8a2427f1cf27ac9a302c8\",\"root_hash\":\"7e43b4d22a268ccba8b129401305db1c84a16e3ed6b1986afd82228187f0a91e\",\"signed_at\":\"2026-10-30T12:10:00.456Z\",\"tree_size\":4,\"v\":1}",
+      "signature": "41ba49c3ba5d612ae0a2e6426d10f1a89fcccc588c7a2ac1ada92ffcc998389a8729ba34c235456fc8f99e2daeadff1e9ee08bfb916ff5a4119012955ca06205"
+    },
+    "receipt": {
+      "note": "Receipt golden. Event row = golden.event.row with only commitment replaced by HMAC-SHA256(salt, canonical(payload.data)). The emitter is signed with the RFC 8032 test 1 seed (golden.signer) and the checkpoint with the RFC 8032 test 2 seed (signers.log); both are PUBLIC TEST DATA. Computed with hashlib/hmac/json + cryptography, not with receipt_from_rows.",
+      "log_ref": "lg_0123456789abcdef",
+      "signers": {
+        "emitter": {
+          "seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+          "public_key": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+          "key_id": "21fe31dfa154a261"
+        },
+        "log": {
+          "seed_hex": "4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb",
+          "public_key": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c",
+          "key_id": "39f713d0a644253f"
+        }
+      },
+      "event_row": {
+        "event_id": "11111111-2222-4333-8444-555555555555",
+        "system_slug": "whatsapp-reservas",
+        "session_ref": "ed656d380a77e86e2ff4db0709a0901bc2ade6f85c5e07fcb42eda6a8c48a528",
+        "seq": 3,
+        "prev_hash": "bdf8c108debbc7923cb0d621984b79a2f825571fc3a1c2a5dc97b6182321ad9b",
+        "event_type": "reservation.status_changed",
+        "actor": "whatsapp_nlu",
+        "occurred_at": "2026-10-30T14:00:00.123456+02:00",
+        "mandate_ref": "a817631429af064659e89385cfd10dee423b44b49216bf5431f0b93e28caa6ba",
+        "commitment": "fa4c8c34f572ae1c6b4f3b789135441ddbc1e3dd6ecb045200821190f6cf1706",
+        "leaf_index": 1,
+        "leaf_hash": "2399668ab3948ca3dea1589abaa76b179500468d794c9a1760c7012a5e5c6286",
+        "signing_key_id": "21fe31dfa154a261",
+        "signature": "dc6a2e4302877d983202bf44bdfb221d8151cdeb00cb98f2505d4a5119b00621369ef91345cf2b5e71905f0c6ffa3ab16d08dcc4b82d8e35decfbcacd752870a"
+      },
+      "other_leaf_hashes": {
+        "0": "2cd9b7aeb8b779f391a3039d4783dd25bc3b18c64d9aad56f0bc41679484ea5b",
+        "2": "18dde1c0bdecea3b0718a88754acc48b9f206c6390fcc9c0f92e454cc935fe9b"
+      },
+      "checkpoint_row": {
+        "tree_size": 3,
+        "root_hash": "9a5d8b8ee6be5ebe7ae806251484aaabfe35b501017f43d21408b3406a5592e7",
+        "previous_root_hash": null,
+        "signed_at": "2026-10-30T12:10:00.456789+00:00",
+        "signing_key_id": "39f713d0a644253f",
+        "signature": "71a06dbe4592572ed5b72868a31b35bb4fd31c7191b8df89bdcaceb49698c5cc73c4c0d9f0c0e87e8da2f3aef7857d50583e107541f6d06bf69143f940e3ce0e"
+      },
+      "payload": {
+        "salt": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a",
+        "data": {
+          "reservation_id": "res-0001-demo",
+          "restaurant_id": "rest-0001-demo",
+          "party_size": 4,
+          "date": "2026-11-05",
+          "time": "21:00",
+          "status": "confirmed",
+          "channel": "whatsapp",
+          "table_id": "tbl-0007-demo"
+        }
+      },
+      "expected": {
+        "version": 1,
+        "event": {
+          "v": 1,
+          "event_id": "11111111-2222-4333-8444-555555555555",
+          "log_ref": "lg_0123456789abcdef",
+          "system_slug": "whatsapp-reservas",
+          "session_ref": "ed656d380a77e86e2ff4db0709a0901bc2ade6f85c5e07fcb42eda6a8c48a528",
+          "seq": 3,
+          "prev_hash": "bdf8c108debbc7923cb0d621984b79a2f825571fc3a1c2a5dc97b6182321ad9b",
+          "event_type": "reservation.status_changed",
+          "actor": "whatsapp_nlu",
+          "occurred_at": "2026-10-30T12:00:00.123Z",
+          "mandate_ref": "a817631429af064659e89385cfd10dee423b44b49216bf5431f0b93e28caa6ba",
+          "commitment": "fa4c8c34f572ae1c6b4f3b789135441ddbc1e3dd6ecb045200821190f6cf1706"
+        },
+        "leaf_hash": "2399668ab3948ca3dea1589abaa76b179500468d794c9a1760c7012a5e5c6286",
+        "leaf_index": 1,
+        "emitter": {
+          "key_id": "21fe31dfa154a261",
+          "public_key": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+          "signature": "dc6a2e4302877d983202bf44bdfb221d8151cdeb00cb98f2505d4a5119b00621369ef91345cf2b5e71905f0c6ffa3ab16d08dcc4b82d8e35decfbcacd752870a"
+        },
+        "checkpoint": {
+          "v": 1,
+          "log_ref": "lg_0123456789abcdef",
+          "tree_size": 3,
+          "root_hash": "9a5d8b8ee6be5ebe7ae806251484aaabfe35b501017f43d21408b3406a5592e7",
+          "previous_root_hash": null,
+          "signed_at": "2026-10-30T12:10:00.456Z",
+          "key_id": "39f713d0a644253f",
+          "public_key": "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c",
+          "signature": "71a06dbe4592572ed5b72868a31b35bb4fd31c7191b8df89bdcaceb49698c5cc73c4c0d9f0c0e87e8da2f3aef7857d50583e107541f6d06bf69143f940e3ce0e"
+        },
+        "inclusion_proof": [
+          "2cd9b7aeb8b779f391a3039d4783dd25bc3b18c64d9aad56f0bc41679484ea5b",
+          "18dde1c0bdecea3b0718a88754acc48b9f206c6390fcc9c0f92e454cc935fe9b"
+        ],
+        "anchor": null,
+        "payload": {
+          "salt": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a",
+          "data": {
+            "reservation_id": "res-0001-demo",
+            "restaurant_id": "rest-0001-demo",
+            "party_size": 4,
+            "date": "2026-11-05",
+            "time": "21:00",
+            "status": "confirmed",
+            "channel": "whatsapp",
+            "table_id": "tbl-0007-demo"
+          }
+        }
+      }
+    }
+  },
+  "mandate": {
+    "note": "Mandate ref per formato-v1: SHA-256 of the canonical mandate object. Computed with stdlib json (sort_keys, no spaces, ensure_ascii=False) and hashlib only, not with capture.compute_mandate_ref.",
+    "input_row": {
+      "system_slug": "whatsapp-reservas",
+      "version": 2,
+      "scope": {
+        "actions": [
+          "reservation.create",
+          "reservation.modify",
+          "reservation.cancel"
+        ]
+      },
+      "limits": {
+        "min_advance_hours": 2,
+        "max_advance_days": 60,
+        "max_party_size": 8,
+        "min_party_size": 1,
+        "allow_same_day": true,
+        "auto_confirm": false,
+        "whatsapp_booking_enabled": true
+      },
+      "approver": "user:u-42",
+      "justification": "solo grupos pequeños, sin reservas de última hora"
+    },
+    "canonical_utf8": "{\"approver\":\"user:u-42\",\"justification\":\"solo grupos pequeños, sin reservas de última hora\",\"limits\":{\"allow_same_day\":true,\"auto_confirm\":false,\"max_advance_days\":60,\"max_party_size\":8,\"min_advance_hours\":2,\"min_party_size\":1,\"whatsapp_booking_enabled\":true},\"scope\":{\"actions\":[\"reservation.create\",\"reservation.modify\",\"reservation.cancel\"]},\"system_slug\":\"whatsapp-reservas\",\"v\":1,\"version\":2}",
+    "canonical_hex": "7b22617070726f766572223a22757365723a752d3432222c226a757374696669636174696f6e223a22736f6c6f20677275706f73207065717565c3b16f732c2073696e20726573657276617320646520c3ba6c74696d6120686f7261222c226c696d697473223a7b22616c6c6f775f73616d655f646179223a747275652c226175746f5f636f6e6669726d223a66616c73652c226d61785f616476616e63655f64617973223a36302c226d61785f70617274795f73697a65223a382c226d696e5f616476616e63655f686f757273223a322c226d696e5f70617274795f73697a65223a312c2277686174736170705f626f6f6b696e675f656e61626c6564223a747275657d2c2273636f7065223a7b22616374696f6e73223a5b227265736572766174696f6e2e637265617465222c227265736572766174696f6e2e6d6f64696679222c227265736572766174696f6e2e63616e63656c225d7d2c2273797374656d5f736c7567223a2277686174736170702d7265736572766173222c2276223a312c2276657273696f6e223a327d",
+    "mandate_ref": "b842dea390372f3bd5dd890c33e7eabdbeca40408dd5d791683b192fa19e9f7a"
+  }
+}

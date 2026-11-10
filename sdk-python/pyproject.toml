@@ -9,8 +9,11 @@ description = "Python SDK for Vottun AI Compliance (EU AI Act Art. 50)"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-dependencies = ["httpx"]
+dependencies = ["httpx", "cryptography>=42"]
 authors = [{ name = "Vottun" }]
+
+[project.scripts]
+vottun-ledger = "vottun_compliance.ledger.cli:main"
 
 [project.urls]
 Homepage = "https://vottun.com"
@@ -21,3 +24,5 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
